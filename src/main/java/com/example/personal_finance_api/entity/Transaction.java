@@ -32,6 +32,11 @@ public class Transaction {
 	@JoinColumn(name = "category_id", nullable = false)
 	private Category category;
 
+	@NotNull
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "user_id", nullable = false)
+	private User user;
+
 	@NotBlank
 	@Column(nullable = false, length = 100)
 	private String title;
@@ -59,12 +64,13 @@ public class Transaction {
 	}
 
 	public Transaction(String title, BigDecimal amount, LocalDate transactionDate, TransactionType type,
-			Category category) {
+			Category category, User user) {
 		this.title = title;
 		this.amount = amount;
 		this.transactionDate = transactionDate;
 		this.category = category;
 		this.type = type;
+		this.user = user;
 	}
 
 	@PrePersist
@@ -109,6 +115,10 @@ public class Transaction {
 
 	public Category getCategory() {
 		return category;
+	}
+
+	public User getUser() {
+		return user;
 	}
 
 	// set

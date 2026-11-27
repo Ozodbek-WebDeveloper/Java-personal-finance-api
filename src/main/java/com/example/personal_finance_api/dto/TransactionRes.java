@@ -9,6 +9,7 @@ import com.example.personal_finance_api.enums.TransactionType;
 public record TransactionRes(
         Integer id,
         Integer categoryId,
+				Integer userId,
         String title,
         BigDecimal amount,
         LocalDate transactionDate,

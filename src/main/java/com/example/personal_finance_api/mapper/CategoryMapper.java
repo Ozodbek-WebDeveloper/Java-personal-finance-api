@@ -10,6 +10,7 @@ public class CategoryMapper {
   public CategoryRes toResponse(Category category) {
     return new CategoryRes(
         category.getId(),
+				category.getUser().getId(),
         category.getName(),
         category.getType(),
         category.getCreatedAt(),

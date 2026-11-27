@@ -16,9 +16,9 @@ import com.example.personal_finance_api.enums.TransactionType;
 
 public interface TransactionRepository extends JpaRepository<Transaction, Integer> {
 	boolean existsByCategoryId(Integer categoryId);
-
-	List<Transaction> findAllByCategoryId(Integer categoryId);
-
+	Optional<Transaction> findByIdAndUserId(Integer id, Integer userId);
+	List<Transaction> findAllByCategoryIdAndUserId(Integer categoryId,Integer userId);
+	List<Transaction> findAllByUserId(Integer userId);
 	@Query("""
 			    SELECT COALESCE(SUM(t.amount), 0)
 			    FROM Transaction t

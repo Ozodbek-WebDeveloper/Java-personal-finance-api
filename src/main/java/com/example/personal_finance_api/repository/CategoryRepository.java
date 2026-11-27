@@ -8,6 +8,8 @@ import com.example.personal_finance_api.entity.Category;
 import com.example.personal_finance_api.enums.TransactionType;
 
 public interface CategoryRepository extends JpaRepository<Category, Integer> {
-    Optional<Category> findByNameIgnoreCase(String name);
-    List<Category> findAllByType(TransactionType type);
+    Optional<Category> findByNameIgnoreCase(String name, Integer userId);
+    List<Category> findAllByType(TransactionType type,Integer userid);
+		List<Category> findAllByUserId(Integer userId);
+		Optional<Category> findByIdAndUserId(Integer id ,Integer userId);
 }

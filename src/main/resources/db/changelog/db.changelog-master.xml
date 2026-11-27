@@ -171,4 +171,30 @@
 			newDataType="INTEGER" />
 	</changeSet>
 
+	<changeSet id="add-user-id-to-transaction" author="developer">
+		<addColumn tableName="transaction">
+			<column name="user_id" type="INTEGER" />
+		</addColumn>
+
+		<addForeignKeyConstraint
+			baseTableName="transaction"
+			baseColumnNames="user_id"
+			referencedTableName="users"
+			referencedColumnNames="id"
+			constraintName="fk_transaction_user" />
+	</changeSet>
+
+	<changeSet id="add-user-id-to-category" author="developer">
+		<addColumn tableName="category">
+			<column name="user_id" type="INTEGER" />
+		</addColumn>
+
+		<addForeignKeyConstraint
+			baseTableName="category"
+			baseColumnNames="user_id"
+			referencedTableName="users"
+			referencedColumnNames="id"
+			constraintName="fk_category_user" />
+	</changeSet>
+
 </databaseChangeLog>

@@ -6,6 +6,7 @@ import com.example.personal_finance_api.enums.TransactionType;
 
 public record CategoryRes(
     Integer id,
+		Integer userId,
     String name,
     TransactionType type,
     LocalDateTime createdAt,

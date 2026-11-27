@@ -2,6 +2,7 @@ package com.example.personal_finance_api.service;
 
 import java.util.List;
 
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import com.example.personal_finance_api.exception.BadRequestException;
 import com.example.personal_finance_api.exception.ResourceNotFoundException;
@@ -9,6 +10,7 @@ import com.example.personal_finance_api.mapper.CategoryMapper;
 import com.example.personal_finance_api.dto.CategoryReq;
 import com.example.personal_finance_api.dto.CategoryRes;
 import com.example.personal_finance_api.entity.Category;
+import com.example.personal_finance_api.entity.User;
 import com.example.personal_finance_api.enums.TransactionType;
 import com.example.personal_finance_api.repository.CategoryRepository;
 import com.example.personal_finance_api.repository.TransactionRepository;
@@ -28,39 +30,43 @@ public class CategoryService {
 
 	public CategoryRes create(CategoryReq categoryReq) {
 		String name = categoryReq.name().trim();
-
-		if (categoryRepository.findByNameIgnoreCase(name).isPresent()) {
+		User user = getCurrentUser();
+		if (categoryRepository.findByNameIgnoreCase(name, user.getId()).isPresent()) {
 			throw new BadRequestException("Bu nomdagi kategoriya allaqachon mavjud");
 		}
 
-		Category category = new Category(name, categoryReq.type());
+		Category category = new Category(name, categoryReq.type(), user);
 
 		Category newCategory = categoryRepository.save(category);
 		return categoryMapper.toResponse(newCategory);
 	}
 
 	public List<CategoryRes> getAllCategory() {
-		return categoryRepository.findAll().stream()
+		User user = getCurrentUser();
+		return categoryRepository.findAllByUserId(user.getId()).stream()
 				.map(categoryMapper::toResponse)
 				.toList();
 	}
 
 	public List<CategoryRes> getAllCategoryByType(TransactionType type) {
-		return categoryRepository.findAllByType(type).stream().map(categoryMapper::toResponse)
+		User user = getCurrentUser();
+		return categoryRepository.findAllByType(type, user.getId()).stream().map(categoryMapper::toResponse)
 				.toList();
 	}
 
 	public CategoryRes findOne(Integer id) {
-		Category category = categoryRepository.findById(id)
+		User user = getCurrentUser();
+		Category category = categoryRepository.findByIdAndUserId(id, user.getId())
 				.orElseThrow(() -> new ResourceNotFoundException("Category topilmadi: " + id));
 		return categoryMapper.toResponse(category);
 	}
 
 	public CategoryRes update(Integer id, CategoryReq categoryReq) {
-		Category category = categoryRepository.findById(id)
+		User user = getCurrentUser();
+		Category category = categoryRepository.findByIdAndUserId(id, user.getId())
 				.orElseThrow(() -> new ResourceNotFoundException("Category topilmadi: " + id));
 
-		categoryRepository.findByNameIgnoreCase(categoryReq.name().trim())
+		categoryRepository.findByNameIgnoreCase(categoryReq.name().trim(), user.getId())
 				.filter(c -> !c.getId().equals(id))
 				.ifPresent(c -> {
 					throw new BadRequestException("Bu nomdagi kategoriya allaqachon mavjud!");
@@ -71,15 +77,23 @@ public class CategoryService {
 	}
 
 	public String delete(Integer id) {
-		categoryRepository.findById(id)
+		User user = getCurrentUser();
+		Category category = categoryRepository.findByIdAndUserId(id, user.getId())
 				.orElseThrow(() -> new ResourceNotFoundException("Categorya topilmadi!"));
 
 		if (transactionRepository.existsByCategoryId(id)) {
 			throw new BadRequestException("Categoryaga  tegishli transactionlar mavjud!");
 		}
 
-		categoryRepository.deleteById(id);
+		categoryRepository.delete(category);
 		return "Categorya muvofaqiyarli o'chirildi.";
+	}
+
+	private User getCurrentUser() {
+		return (User) SecurityContextHolder
+				.getContext()
+				.getAuthentication()
+				.getPrincipal();
 	}
 
 }

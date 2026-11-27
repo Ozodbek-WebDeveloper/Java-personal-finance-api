@@ -11,6 +11,7 @@ public class TransactionMapper {
     return new TransactionRes(
         transaction.getId(),
         transaction.getCategory().getId(),
+				transaction.getUser().getId(),
         transaction.getTitle(),
         transaction.getAmount(),
         transaction.getTransactionDate(),
